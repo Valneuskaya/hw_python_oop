@@ -10,16 +10,20 @@ class InfoMessage:
     speed: float
     calories: float
 
+    MESSAGE: str = (
+        'Тип тренировки: {training_type}; '
+        'Длительность: {duration:.3f} ч.; '
+        'Дистанция: {distance:.3f} км; '
+        'Ср. скорость: {speed:.3f} км/ч; '
+        'Потрачено ккал: {calories:.3f}.')
+
     def get_message(self) -> str:
         """Выдает сообщение с данными тренировки"""
-        message: str = (
-            f'Тип тренировки: {self.training_type}; '
-            f'Длительность: {self.duration:.3f} ч.; '
-            f'Дистанция: {self.distance:.3f} км; '
-            f'Ср. скорость: {self.speed:.3f} км/ч; '
-            f'Потрачено ккал: {self.calories:.3f}.'
-        )
-        return message
+        return self.MESSAGE.format(training_type=self.training_type,
+                                   duration=self.duration,
+                                   distance=self.distance,
+                                   speed=self.speed,
+                                   calories=self.calories)
 
 
 class Training:
@@ -53,10 +57,13 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        return InfoMessage.get_message(self, self.__class__.__name__,
-                                       self.duration, self.get_distance,
-                                       self.get_mean_speed,
-                                       self.get_spent_calories)
+        return InfoMessage(
+            self.__class__.__name__,
+            self.duration,
+            self.get_distance(),
+            self.get_mean_speed(),
+            self.get_spent_calories(),
+        )
 
 
 class Running(Training):
@@ -94,7 +101,7 @@ class SportsWalking(Training):
         spent_calories_walk = ((self.COEF_CAL_WALK_1
                                 * self.weight
                                 + (mean_speed ** 2 // self.height)
-                                * self.COEF_CAL_WALK_1
+                                * self.COEF_CAL_WALK_2
                                 * self.weight) * (self.duration * 60))
         return spent_calories_walk
 
@@ -126,7 +133,7 @@ class Swimming(Training):
         """Получить количество затраченных калорий."""
         mean_speed = self.get_mean_speed()
         spent_calories_swim = ((mean_speed + self.COEF_CAL_SWIM_1)
-                               * self.COEF_CAL_SWIM_1 * self.weight)
+                               * self.COEF_CAL_SWIM_2 * self.weight)
         return spent_calories_swim
 
 
